@@ -1,18 +1,18 @@
 import express from "express";
 import { getClient } from "../db";
-import Trial from "../models/Trial";
+import Patient from "../models/Patient";
 import { ObjectId } from "mongodb";
 
-const trialRouter = express.Router();
+const patientRouter = express.Router();
 const errorResponse = (error: any, res: any) => {
   console.error("FAIL", error);
   res.status(500).json({ message: "Internal Server Error" });
 };
 
-trialRouter.get("/trials", async (req, res) => {
+patientRouter.get("/allpatients", async (req, res) => {
   try {
     const client = await getClient();
-    const cursor = client.db().collection<Trial>("trials").find();
+    const cursor = client.db().collection<Patient>("patient").find();
     const results = await cursor.toArray();
     res.json(results);
   } catch (err) {
@@ -20,14 +20,14 @@ trialRouter.get("/trials", async (req, res) => {
   }
 });
 
-trialRouter.get("/trials/:id", async (req, res) => {
-  const trialToFind: string = req.params.id;
+patientRouter.get("/allpatients/:id", async (req, res) => {
+  const patientToFind: string = req.params.id;
   try {
     const client = await getClient();
     const cursor = client
       .db()
-      .collection<Trial>("trials")
-      .find({ trial_id: trialToFind });
+      .collection<Patient>("patient")
+      .find({ patient_id: patientToFind });
     const results = await cursor.toArray();
     res.json(results);
   } catch (err) {
@@ -35,24 +35,24 @@ trialRouter.get("/trials/:id", async (req, res) => {
   }
 });
 
-trialRouter.post("/trials", async (req, res) => {
-  const newTrial: Trial = req.body;
+patientRouter.post("/patients", async (req, res) => {
+  const newPatient: Patient = req.body;
   try {
     const client = await getClient();
-    await client.db().collection<Trial>("trials").insertOne(newTrial);
-    res.status(201).json(newTrial);
+    await client.db().collection<Patient>("patient").insertOne(newPatient);
+    res.status(201).json(newPatient);
   } catch (err) {
     errorResponse(err, res);
   }
 });
 
-trialRouter.delete("/trials/:id", async (req, res) => {
+patientRouter.delete("/patient/:id", async (req, res) => {
   const idToDelete: ObjectId = new ObjectId(req.params.id);
   try {
     const client = await getClient();
     const result = await client
       .db()
-      .collection<Trial>("trials")
+      .collection<Patient>("patient")
       .deleteOne({ _id: idToDelete });
     if (result.deletedCount > 0) {
       res.sendStatus(204);
@@ -64,22 +64,22 @@ trialRouter.delete("/trials/:id", async (req, res) => {
   }
 });
 
-trialRouter.put("/trials/:id", async (req, res) => {
+patientRouter.put("/patient/:id", async (req, res) => {
   // path param point to the obj to replace
   const idToReplace: string = req.params.id;
   // this will replace that obj from ^^
-  const updatedTrial: Trial = req.body;
+  const updatedPatient: Patient = req.body;
   // delete _id because we're using replace one in API
-  delete updatedTrial._id;
+  delete updatedPatient._id;
   try {
     const client = await getClient();
     const result = await client
       .db()
-      .collection<Trial>("trials")
-      .replaceOne({ _id: new ObjectId(idToReplace) }, updatedTrial);
+      .collection<Patient>("patient")
+      .replaceOne({ _id: new ObjectId(idToReplace) }, updatedPatient);
     if (result.modifiedCount > 0) {
-      updatedTrial._id = new ObjectId(idToReplace);
-      res.status(200).json(updatedTrial);
+      updatedPatient._id = new ObjectId(idToReplace);
+      res.status(200).json(updatedPatient);
     } else {
       res.status(404).json({ message: "_id not found" });
     }
@@ -88,4 +88,4 @@ trialRouter.put("/trials/:id", async (req, res) => {
   }
 });
 
-export default trialRouter;
+export default patientRouter;
