@@ -20,8 +20,9 @@ patientRouter.get("/allpatients", async (req, res) => {
   }
 });
 
-patientRouter.get("/allpatients/:id", async (req, res) => {
+patientRouter.get("/allPatients/:id", async (req, res) => {
   const patientToFind: string = req.params.id;
+
   try {
     const client = await getClient();
     const cursor = client
@@ -34,8 +35,23 @@ patientRouter.get("/allpatients/:id", async (req, res) => {
     errorResponse(err, res);
   }
 });
+patientRouter.get("/allPatients/guardian/:guardian", async (req, res) => {
+  const guardianToFind: string = req.params.guardian;
 
-patientRouter.post("/patients", async (req, res) => {
+  try {
+    const client = await getClient();
+    const cursor = client
+      .db()
+      .collection<Patient>("patient")
+      .find({ guardianID: guardianToFind });
+    const results = await cursor.toArray();
+    res.json(results);
+  } catch (err) {
+    errorResponse(err, res);
+  }
+});
+
+patientRouter.post("/patient", async (req, res) => {
   const newPatient: Patient = req.body;
   try {
     const client = await getClient();
