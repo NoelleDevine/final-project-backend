@@ -9,10 +9,26 @@ const errorResponse = (error: any, res: any) => {
   res.status(500).json({ message: "Internal Server Error" });
 };
 
-trialRouter.get("/trials", async (req, res) => {
+trialRouter.get("/allTrials", async (req, res) => {
   try {
     const client = await getClient();
     const cursor = client.db().collection<Trial>("trials").find();
+    const results = await cursor.toArray();
+    res.json(results);
+  } catch (err) {
+    errorResponse(err, res);
+  }
+});
+
+trialRouter.get("/allTrials/trials/:guardian", async (req, res) => {
+  const guardianToFind: string = req.params.guardian;
+
+  try {
+    const client = await getClient();
+    const cursor = client
+      .db()
+      .collection<Trial>("trials")
+      .find({ guardianID: guardianToFind });
     const results = await cursor.toArray();
     res.json(results);
   } catch (err) {
@@ -27,7 +43,7 @@ trialRouter.get("/trials/:id", async (req, res) => {
     const cursor = client
       .db()
       .collection<Trial>("trials")
-      .find({ trial_id: trialToFind });
+      .find({ patient_id: trialToFind });
     const results = await cursor.toArray();
     res.json(results);
   } catch (err) {
@@ -35,7 +51,7 @@ trialRouter.get("/trials/:id", async (req, res) => {
   }
 });
 
-trialRouter.post("/trials", async (req, res) => {
+trialRouter.post("/addTrial", async (req, res) => {
   const newTrial: Trial = req.body;
   try {
     const client = await getClient();
