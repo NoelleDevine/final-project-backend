@@ -40,12 +40,12 @@ trialRouter.get("/trials/:id", async (req, res) => {
   const trialToFind: string = req.params.id;
   try {
     const client = await getClient();
-    const cursor = client
+    const result = await client
       .db()
       .collection<Trial>("trials")
-      .find({ patient_id: trialToFind });
-    const results = await cursor.toArray();
-    res.json(results);
+      .findOne({ _id: new ObjectId(trialToFind) });
+    //const results = await cursor;
+    res.json(result);
   } catch (err) {
     errorResponse(err, res);
   }
@@ -103,5 +103,30 @@ trialRouter.put("/trials/:id", async (req, res) => {
     errorResponse(err, res);
   }
 });
+
+trialRouter.patch(
+  "/trial/:trialID/reactionID/:reactionID",
+  async (req, res) => {
+    try {
+      //const userId: ObjectId = new ObjectId(req.params.userId);
+      const reactionId: string = req.params.reactionID;
+      const trialToUpdate: ObjectId = new ObjectId(req.params.trialID);
+      const client = await getClient();
+      const result = await client
+        .db()
+        .collection<Trial>("trials")
+        .updateOne({ _id: trialToUpdate }, { $push: { reaction: reactionId } });
+      if (result.matchedCount) {
+        res.status(200);
+        res.json(trialToUpdate);
+      } else {
+        res.status(404);
+        res.send("Not found");
+      }
+    } catch (err) {
+      errorResponse(err, res);
+    }
+  }
+);
 
 export default trialRouter;
