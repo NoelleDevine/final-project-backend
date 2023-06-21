@@ -4,6 +4,7 @@ export default interface Patient {
   _id?: ObjectId;
   guardianID: string; //google UID
   patient_name: string;
+  gender: string;
   // age_years: number;
   // age_months: number;
   birthdate: Date;
