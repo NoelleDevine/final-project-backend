@@ -39,6 +39,7 @@ trialRouter.get("/allTrials/trials/:guardian", async (req, res) => {
 trialRouter.get("/trials/:id", async (req, res) => {
   const trialToFind: string = req.params.id;
   try {
+    console.log("got to backend");
     const client = await getClient();
     const result = await client
       .db()
@@ -46,6 +47,7 @@ trialRouter.get("/trials/:id", async (req, res) => {
       .findOne({ _id: new ObjectId(trialToFind) });
     //const results = await cursor;
     res.json(result);
+    console.log(result);
   } catch (err) {
     errorResponse(err, res);
   }
