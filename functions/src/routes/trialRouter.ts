@@ -130,5 +130,26 @@ trialRouter.patch(
     }
   }
 );
+//update status to pass/fail
+trialRouter.patch("/trial/:trialID/:status", async (req, res) => {
+  try {
+    const status: string = req.params.status;
+    const trialToUpdate: ObjectId = new ObjectId(req.params.trialID);
+    const client = await getClient();
+    const result = await client
+      .db()
+      .collection<Trial>("trials")
+      .updateOne({ _id: trialToUpdate }, { $set: { trial_pass: status } });
+    if (result.matchedCount) {
+      res.status(200);
+      res.json(trialToUpdate);
+    } else {
+      res.status(404);
+      res.send("Not found");
+    }
+  } catch (err) {
+    errorResponse(err, res);
+  }
+});
 
 export default trialRouter;
