@@ -12,4 +12,5 @@ export default interface Trial {
   start_date: Date; //current date and time
   trial_pass: string;
   reaction?: string[]; //reaction object id
+  nutrition_info?: string; //pulled from api
 }
